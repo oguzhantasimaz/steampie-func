@@ -1,7 +1,6 @@
 package steampie
 
 import (
-	"SteamPie/domain"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -10,6 +9,7 @@ import (
 	"time"
 
 	"github.com/GoogleCloudPlatform/functions-framework-go/functions"
+	"github.com/oguzhantasimaz/steampie-func/domain"
 )
 
 var ApiKey = os.Getenv("STEAM_API_KEY")
