@@ -61,8 +61,7 @@ func steamPieHTTP(w http.ResponseWriter, r *http.Request) {
 		GameCount: games.Response.GameCount,
 	}
 
-	for i, game := range games.Response.Games {
-		fmt.Println(i, " Loading game info for", game.Name)
+	for _, game := range games.Response.Games {
 		gameInfoResp, err = GetGameInfoRequest(fmt.Sprintf("%d", game.Appid))
 		if err != nil {
 			json.NewEncoder(w).Encode(err)
@@ -153,8 +152,6 @@ func GetGameInfoRequest(appid string) (*json.RawMessage, error) {
 	if err != nil {
 		return nil, err
 	}
-
-	fmt.Println(resp.StatusCode, resp.Status)
 
 	var body []byte
 	body, err = io.ReadAll(resp.Body)
