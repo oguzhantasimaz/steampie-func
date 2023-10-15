@@ -1,4 +1,4 @@
-module SteamPie
+module github.com/oguzhantasimaz/steampie-func
 
 go 1.21.1
 
