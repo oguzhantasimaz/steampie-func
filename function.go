@@ -22,17 +22,19 @@ func init() {
 func steamPieHTTP(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
+	w.Header().Set("Content-Type", "application/json")
 
 	var Id struct {
 		SteamId string `json:"steamId"`
 	}
 	if err := json.NewDecoder(r.Body).Decode(&Id); err != nil {
-		ResponseJSON(w, http.StatusBadRequest, err.Error())
+		json.NewEncoder(w).Encode(err)
 		return
 	}
 
 	if Id.SteamId == "" {
-		ResponseJSON(w, http.StatusBadRequest, "steamId is required")
+		json.NewEncoder(w).Encode("SteamId is required")
+		return
 	}
 
 	var games *domain.Games
@@ -47,7 +49,8 @@ func steamPieHTTP(w http.ResponseWriter, r *http.Request) {
 	var err error
 	games, err = GetGamesRequest(ApiKey, Id.SteamId)
 	if err != nil {
-		ResponseJSON(w, http.StatusInternalServerError, err.Error())
+		json.NewEncoder(w).Encode(err)
+		return
 	}
 
 	games = FilterGames(games)
@@ -62,13 +65,13 @@ func steamPieHTTP(w http.ResponseWriter, r *http.Request) {
 		fmt.Println(i, " Loading game info for", game.Name)
 		gameInfoResp, err = GetGameInfoRequest(fmt.Sprintf("%d", game.Appid))
 		if err != nil {
-			ResponseJSON(w, http.StatusInternalServerError, err.Error())
+			json.NewEncoder(w).Encode(err)
 			return
 		}
 
 		var gameInfo *domain.GameInfo
-		if err := json.Unmarshal(*gameInfoResp, &gameInfo); err != nil {
-			ResponseJSON(w, http.StatusInternalServerError, err.Error())
+		if err = json.Unmarshal(*gameInfoResp, &gameInfo); err != nil {
+			json.NewEncoder(w).Encode(err)
 			return
 		}
 
@@ -104,7 +107,6 @@ func steamPieHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 
 	//return as json
-	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(stats)
 }
 
@@ -196,10 +198,4 @@ func FilterGames(games *domain.Games) *domain.Games {
 	}
 
 	return filteredGames
-}
-
-func ResponseJSON(w http.ResponseWriter, code int, message string) {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(code)
-	json.NewEncoder(w).Encode(map[string]string{"message": message})
 }
