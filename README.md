@@ -16,6 +16,8 @@ The Steam Pie project aims to provide users with a visually appealing graph repr
 
 The frontend was developed using ReactJS and the [React ChartJS 2](https://www.chartjs.org/docs/latest/) library. The website is hosted on [Vercel](https://vercel.com/).
 
+[Frontend Repository](https://github.com/oguzhantasimaz/steampie)
+
 ## Backend
 
 The backend was developed using Golang and GCP's [Cloud Functions](https://cloud.google.com/functions).
