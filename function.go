@@ -13,7 +13,6 @@ import (
 )
 
 var ApiKey = os.Getenv("STEAM_API_KEY")
-var SecretKey = os.Getenv("SECRET_KEY")
 
 func init() {
 	functions.HTTP("SteamPieHTTP", steamPieHTTP)
@@ -21,9 +20,11 @@ func init() {
 
 // steamPieHTTP is an HTTP Cloud Function.
 func steamPieHTTP(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
+	
 	var Id struct {
-		SteamId   string `json:"steamId"`
-		SecretKey string `json:"secretKey"`
+		SteamId string `json:"steamId"`
 	}
 	if err := json.NewDecoder(r.Body).Decode(&Id); err != nil {
 		fmt.Fprint(w, "Error: ", err)
@@ -32,11 +33,6 @@ func steamPieHTTP(w http.ResponseWriter, r *http.Request) {
 
 	if Id.SteamId == "" {
 		fmt.Fprint(w, "Error: ", "SteamId is empty")
-		return
-	}
-
-	if Id.SecretKey != SecretKey {
-		fmt.Fprintf(w, "Error: ", "SecretKey is wrong")
 		return
 	}
 
@@ -55,7 +51,8 @@ func steamPieHTTP(w http.ResponseWriter, r *http.Request) {
 
 	var stats *domain.Stats
 	stats = &domain.Stats{
-		SteamId: Id.SteamId,
+		SteamId:   Id.SteamId,
+		GameCount: games.Response.GameCount,
 	}
 
 	for i, game := range games.Response.Games {
@@ -98,7 +95,9 @@ func steamPieHTTP(w http.ResponseWriter, r *http.Request) {
 		})
 	}
 
-	fmt.Fprint(w, stats)
+	//return as json
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(stats)
 }
 
 func GetGamesRequest(key, steamId string) (*domain.Games, error) {
