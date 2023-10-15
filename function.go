@@ -22,18 +22,17 @@ func init() {
 func steamPieHTTP(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
-	
+
 	var Id struct {
 		SteamId string `json:"steamId"`
 	}
 	if err := json.NewDecoder(r.Body).Decode(&Id); err != nil {
-		fmt.Fprint(w, "Error: ", err)
+		ResponseJSON(w, http.StatusBadRequest, err.Error())
 		return
 	}
 
 	if Id.SteamId == "" {
-		fmt.Fprint(w, "Error: ", "SteamId is empty")
-		return
+		ResponseJSON(w, http.StatusBadRequest, "steamId is required")
 	}
 
 	var games *domain.Games
@@ -45,7 +44,11 @@ func steamPieHTTP(w http.ResponseWriter, r *http.Request) {
 	genreStats = make(map[string]int)
 	categoryStats = make(map[string]int)
 
-	games, _ = GetGamesRequest(ApiKey, Id.SteamId)
+	var err error
+	games, err = GetGamesRequest(ApiKey, Id.SteamId)
+	if err != nil {
+		ResponseJSON(w, http.StatusInternalServerError, err.Error())
+	}
 
 	games = FilterGames(games)
 
@@ -57,11 +60,16 @@ func steamPieHTTP(w http.ResponseWriter, r *http.Request) {
 
 	for i, game := range games.Response.Games {
 		fmt.Println(i, " Loading game info for", game.Name)
-		gameInfoResp, _ = GetGameInfoRequest(fmt.Sprintf("%d", game.Appid))
+		gameInfoResp, err = GetGameInfoRequest(fmt.Sprintf("%d", game.Appid))
+		if err != nil {
+			ResponseJSON(w, http.StatusInternalServerError, err.Error())
+			return
+		}
 
 		var gameInfo *domain.GameInfo
 		if err := json.Unmarshal(*gameInfoResp, &gameInfo); err != nil {
-			panic(err)
+			ResponseJSON(w, http.StatusInternalServerError, err.Error())
+			return
 		}
 
 		for _, genre := range gameInfo.Data.Genres {
@@ -188,4 +196,10 @@ func FilterGames(games *domain.Games) *domain.Games {
 	}
 
 	return filteredGames
+}
+
+func ResponseJSON(w http.ResponseWriter, code int, message string) {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(code)
+	json.NewEncoder(w).Encode(map[string]string{"message": message})
 }
