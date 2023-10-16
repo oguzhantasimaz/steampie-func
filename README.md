@@ -1,6 +1,6 @@
-# Spotify Pie
+# Steam Pie
 
-The Steam Pie project aims to provide users with a visually appealing graph representation of their gameplay data. By accessing the project website users can get their data by entering their steam id.
+The SteamPie project aims to provide users with a visually appealing graph representation of their gameplay data. By accessing the project website users can get their data by entering their steam id.
 
 ## Getting Started
 
