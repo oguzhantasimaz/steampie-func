@@ -1,11 +1,11 @@
 package domain
 
 type Stats struct {
-	SteamId    string     `json:"steam_id"`
-	GameCount  int        `json:"games_count"`
-	Categories []Category `json:"categories"`
-	Genres     []Genre    `json:"genres"`
-	Games      []Game     `json:"games"`
+	SteamId   string `json:"steam_id"`
+	GameCount int    `json:"games_count"`
+	//Categories []Category `json:"categories"`
+	Genres []Genre `json:"genres"`
+	Games  []Game  `json:"games"`
 }
 
 type Game struct {
@@ -14,11 +14,13 @@ type Game struct {
 }
 
 type Genre struct {
-	Name     string `json:"name"`
-	PlayTime int    `json:"play_time"`
+	Name     string   `json:"name"`
+	PlayTime int      `json:"play_time"`
+	Games    []string `json:"games"`
 }
 
-type Category struct {
-	Name     string `json:"name"`
-	PlayTime int    `json:"play_time"`
-}
+//type Category struct {
+//	Name     string `json:"name"`
+//	PlayTime int    `json:"play_time"`
+//	Games    []string `json:"games"`
+//}

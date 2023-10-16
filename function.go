@@ -41,10 +41,10 @@ func steamPieHTTP(w http.ResponseWriter, r *http.Request) {
 	var gameInfos []*domain.GameInfo
 	var gameInfoResp *json.RawMessage
 	var genreStats map[string]int
-	var categoryStats map[string]int
+	//var categoryStats map[string]int
 
 	genreStats = make(map[string]int)
-	categoryStats = make(map[string]int)
+	//categoryStats = make(map[string]int)
 
 	var err error
 	games, err = GetGamesRequest(ApiKey, Id.SteamId)
@@ -78,9 +78,9 @@ func steamPieHTTP(w http.ResponseWriter, r *http.Request) {
 			genreStats[genre.Description] += game.PlaytimeForever / 60
 		}
 
-		for _, category := range gameInfo.Data.Categories {
-			categoryStats[category.Description] += game.PlaytimeForever / 60
-		}
+		//for _, category := range gameInfo.Data.Categories {
+		//	categoryStats[category.Description] += game.PlaytimeForever / 60
+		//}
 
 		stats.Games = append(stats.Games, domain.Game{
 			Name:     game.Name,
@@ -98,12 +98,12 @@ func steamPieHTTP(w http.ResponseWriter, r *http.Request) {
 		})
 	}
 
-	for category, playTime := range categoryStats {
-		stats.Categories = append(stats.Categories, domain.Category{
-			Name:     category,
-			PlayTime: playTime,
-		})
-	}
+	//for category, playTime := range categoryStats {
+	//	stats.Categories = append(stats.Categories, domain.Category{
+	//		Name:     category,
+	//		PlayTime: playTime,
+	//	})
+	//}
 
 	//return as json
 	json.NewEncoder(w).Encode(stats)
