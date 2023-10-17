@@ -54,7 +54,7 @@ func steamPieHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	games = FilterGames(games)
+	games = FilterGames(games, Id.IncludeFreeGames)
 
 	var stats *domain.Stats
 	stats = &domain.Stats{
@@ -89,7 +89,7 @@ func steamPieHTTP(w http.ResponseWriter, r *http.Request) {
 		})
 
 		gameInfos = append(gameInfos, gameInfo)
-		time.Sleep(101 * time.Millisecond)
+		time.Sleep(51 * time.Millisecond)
 	}
 
 	for genre, playTime := range genreStats {
@@ -170,7 +170,7 @@ func GetGameInfoRequest(appid string) (*json.RawMessage, error) {
 	return raw[appid], nil
 }
 
-func FilterGames(games *domain.Games) *domain.Games {
+func FilterGames(games *domain.Games, includeFreeGames bool) *domain.Games {
 	var filteredGames *domain.Games
 
 	filteredGames = &domain.Games{}
@@ -186,11 +186,16 @@ func FilterGames(games *domain.Games) *domain.Games {
 
 	//filter most played games limit 50
 	for _, game := range games.Response.Games {
+		//Remove Counter Strike 2
+		if includeFreeGames == false && game.Appid == 730 {
+			continue
+		}
+
 		if game.PlaytimeForever > 0 {
 			filteredGames.Response.Games = append(filteredGames.Response.Games, game)
 		}
 
-		if len(filteredGames.Response.Games) == 25 {
+		if len(filteredGames.Response.Games) == 30 {
 			break
 		}
 	}
