@@ -76,12 +76,8 @@ func steamPieHTTP(w http.ResponseWriter, r *http.Request) {
 		}
 
 		//if gameInfo.Data.Genres contains "Free to Play" and Id.IncludeFreeGames is false, skip
-		if !Id.IncludeFreeGames {
-			for _, genre := range gameInfo.Data.Genres {
-				if genre.Description == "Free to Play" {
-					continue
-				}
-			}
+		if !Id.IncludeFreeGames && !ContainsFreeToPlay(gameInfo) {
+			continue
 		}
 
 		for _, genre := range gameInfo.Data.Genres {
@@ -210,4 +206,14 @@ func FilterGames(games *domain.Games, includeFreeGames bool) *domain.Games {
 	}
 
 	return filteredGames
+}
+
+func ContainsFreeToPlay(gi *domain.GameInfo) bool {
+	for _, genre := range gi.Data.Genres {
+		if genre.Description == "Free to Play" {
+			return true
+		}
+	}
+
+	return false
 }
