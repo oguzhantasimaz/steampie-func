@@ -25,7 +25,8 @@ func steamPieHTTP(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
 	var Id struct {
-		SteamId string `json:"steamId"`
+		SteamId          string `json:"steamId"`
+		IncludeFreeGames bool   `json:"includeFreeGames"`
 	}
 	if err := json.NewDecoder(r.Body).Decode(&Id); err != nil {
 		json.NewEncoder(w).Encode(err)
@@ -47,7 +48,7 @@ func steamPieHTTP(w http.ResponseWriter, r *http.Request) {
 	//categoryStats = make(map[string]int)
 
 	var err error
-	games, err = GetGamesRequest(ApiKey, Id.SteamId)
+	games, err = GetGamesRequest(ApiKey, Id.SteamId, Id.IncludeFreeGames)
 	if err != nil {
 		json.NewEncoder(w).Encode(err)
 		return
@@ -109,10 +110,10 @@ func steamPieHTTP(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(stats)
 }
 
-func GetGamesRequest(key, steamId string) (*domain.Games, error) {
+func GetGamesRequest(key, steamId string, includeFreeGames bool) (*domain.Games, error) {
 	client := &http.Client{}
 
-	url := fmt.Sprintf("https://api.steampowered.com/IPlayerService/GetOwnedGames/v0001/?key=%s&steamid=%s&format=json&include_appinfo=true&include_played_free_games=true", key, steamId)
+	url := fmt.Sprintf("https://api.steampowered.com/IPlayerService/GetOwnedGames/v0001/?key=%s&steamid=%s&format=json&include_appinfo=true&include_played_free_games=%t", key, steamId, includeFreeGames)
 
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
