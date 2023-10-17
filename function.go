@@ -75,6 +75,15 @@ func steamPieHTTP(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
+		//if gameInfo.Data.Genres contains "Free to Play" and Id.IncludeFreeGames is false, skip
+		if !Id.IncludeFreeGames {
+			for _, genre := range gameInfo.Data.Genres {
+				if genre.Description == "Free to Play" {
+					continue
+				}
+			}
+		}
+
 		for _, genre := range gameInfo.Data.Genres {
 			genreStats[genre.Description] += game.PlaytimeForever / 60
 		}
