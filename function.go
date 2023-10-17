@@ -76,7 +76,7 @@ func steamPieHTTP(w http.ResponseWriter, r *http.Request) {
 		}
 
 		//if gameInfo.Data.Genres contains "Free to Play" and Id.IncludeFreeGames is false, skip
-		if !Id.IncludeFreeGames && !ContainsFreeToPlay(gameInfo) {
+		if !Id.IncludeFreeGames && ContainsFreeToPlay(gameInfo) {
 			continue
 		}
 
